@@ -5,7 +5,8 @@ from pathlib import Path
 
 from fpdf import FPDF
 
-OUT = Path(__file__).resolve().parent / "LOTR5e_Bonus_Actions_Reactions_Cheat_Sheet.pdf"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "LOTR5e_Bonus_Actions_Reactions_Cheat_Sheet.pdf"
 
 PAGE_W, PAGE_H = 595.28, 841.89
 MARGIN_X = 28

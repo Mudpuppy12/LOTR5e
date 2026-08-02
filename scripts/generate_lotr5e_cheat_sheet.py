@@ -5,7 +5,8 @@ from pathlib import Path
 
 from fpdf import FPDF
 
-OUT = Path(__file__).resolve().parent / "LOTR5e_Combat_Actions_Cheat_Sheet.pdf"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "LOTR5e_Combat_Actions_Cheat_Sheet.pdf"
 
 # A4 points
 PAGE_W, PAGE_H = 595.28, 841.89

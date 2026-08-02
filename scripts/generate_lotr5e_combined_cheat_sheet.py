@@ -13,7 +13,8 @@ from fpdf import FPDF
 import generate_lotr5e_bonus_reaction_sheet as bonus_mod
 import generate_lotr5e_cheat_sheet as actions_mod
 
-OUT = Path(__file__).resolve().parent / "LOTR5e_Combat_Reference_Combined.pdf"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "LOTR5e_Combat_Reference_Combined.pdf"
 
 PAGE_W, PAGE_H = 595.28, 841.89
 MARGIN_X = 28

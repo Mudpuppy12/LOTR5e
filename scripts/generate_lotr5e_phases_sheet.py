@@ -5,7 +5,8 @@ from pathlib import Path
 
 from fpdf import FPDF
 
-OUT = Path(__file__).resolve().parent / "LOTR5e_Phases_of_Play_Cheat_Sheet.pdf"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "LOTR5e_Phases_of_Play_Cheat_Sheet.pdf"
 
 PAGE_W, PAGE_H = 595.28, 841.89
 MARGIN_X = 28
@@ -40,13 +41,15 @@ ADVENTURING = [
     (
         "Journey",
         "journey",
-        "Travel across the wild. Plan a route on the map, assign Journey roles, then resolve events along the way. Travel is part of the adventure, not just downtime between scenes.",
+        "Travel across the wild. Plan a route on the map, assign one role to each Player-hero, then resolve events along the way. Small companies may double up roles; there is only one Guide.",
     ),
-    (
-        "Journey Roles",
-        "roles",
-        "Guide - leads the Company and sets the path. Hunter - finds food and tracks. Look-out - watches for danger. Scout - surveys the land ahead. Role checks resolve many journey events.",
-    ),
+]
+
+JOURNEY_ROLES = [
+    ("Guide", "Leads the Company and sets the path. Makes Travel / pathfinding checks that determine progress before the next event."),
+    ("Hunter", "Finds food and follows tracks. Resolves Hunting events (forage, game, and trails)."),
+    ("Look-out", "Watches for danger on the road. Resolves Perception / Awareness events that warn of foes or peril."),
+    ("Scout", "Surveys the land ahead. Resolves Explore events (terrain, camps, shortcuts, and hazards)."),
 ]
 
 FELLOWSHIP = [
@@ -207,6 +210,65 @@ class PhasesSheet(FPDF):
         )
         return intro_y + intro_h + 8
 
+    def draw_journey_roles_table(self, x: float, y: float, w: float, h: float) -> None:
+        """Draw a Role | Duty table filling the given box."""
+        self.set_fill_color(235, 230, 220)
+        self.rect(x, y, w, 14, style="F")
+        self.set_xy(x, y + 1)
+        self.set_font(self.font_family, "B", 8.5)
+        self.set_text_color(40, 30, 20)
+        self.cell(w, 12, "JOURNEY ROLES", align="C")
+
+        table_top = y + 16
+        header_h = 12
+        role_w = 52
+        desc_w = w - role_w
+        row_h = (h - 16 - header_h) / len(JOURNEY_ROLES)
+
+        # Header row
+        self.set_draw_color(180, 170, 155)
+        self.set_line_width(0.5)
+        self.set_fill_color(250, 247, 240)
+        self.rect(x, table_top, role_w, header_h, style="FD")
+        self.rect(x + role_w, table_top, desc_w, header_h, style="FD")
+        self.set_xy(x + 3, table_top + 1)
+        self.set_font(self.font_family, "B", 7.5)
+        self.set_text_color(40, 30, 20)
+        self.cell(role_w - 4, 10, "Role")
+        self.set_xy(x + role_w + 3, table_top + 1)
+        self.cell(desc_w - 4, 10, "Duty")
+
+        for i, (role, duty) in enumerate(JOURNEY_ROLES):
+            ry = table_top + header_h + i * row_h
+            fill = (255, 255, 255) if i % 2 == 0 else (250, 247, 240)
+            self.set_fill_color(*fill)
+            self.rect(x, ry, role_w, row_h, style="FD")
+            self.rect(x + role_w, ry, desc_w, row_h, style="FD")
+
+            self.set_xy(x + 3, ry + 3)
+            self.set_font(self.font_family, "B", 8)
+            self.set_text_color(20, 20, 20)
+            self.cell(role_w - 4, 10, role)
+
+            self.set_xy(x + role_w + 3, ry + 2)
+            self.set_font(self.font_family, "", 6.8)
+            self.set_text_color(40, 40, 40)
+            self.multi_cell(desc_w - 6, 8, duty)
+
+    def draw_adventuring_column(self, x: float, top: float, bottom: float, w: float) -> None:
+        self.draw_section_banner(x, top, w, "ADVENTURING PHASE")
+        y = top + 18
+        entry_heights = [54, 54, 62]
+        for (title, icon, body), eh in zip(ADVENTURING[:-1], entry_heights):
+            self.draw_entry(x, y, w, title, icon, body)
+            y += eh
+        # Journey, then table immediately beneath its text
+        journey_title, journey_icon, journey_body = ADVENTURING[-1]
+        self.draw_entry(x, y, w, journey_title, journey_icon, journey_body)
+        table_y = self.get_y() + 10  # one blank line under Journey text
+        table_h = 148
+        self.draw_journey_roles_table(x, table_y, w, table_h)
+
     def draw_column(
         self,
         x: float,
@@ -243,9 +305,7 @@ class PhasesSheet(FPDF):
         left_x = MARGIN_X
         right_x = MARGIN_X + col_w + COL_GAP
 
-        self.draw_column(
-            left_x, content_top, grid_bottom, col_w, "ADVENTURING PHASE", ADVENTURING
-        )
+        self.draw_adventuring_column(left_x, content_top, grid_bottom, col_w)
         self.draw_column(
             right_x, content_top, grid_bottom, col_w, "FELLOWSHIP PHASE", FELLOWSHIP
         )
