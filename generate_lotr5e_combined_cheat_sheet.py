@@ -3,7 +3,7 @@
 
 Top half: Combat Actions
 Bottom half: Bonus Actions & Reactions
-Print once and cut along the dashed line for a complete player pair.
+One-page complete player combat reference.
 """
 
 from pathlib import Path
@@ -292,26 +292,10 @@ class CombinedCheatSheet(FPDF):
             bottom, reminder_h, "Action economy reminders", ECONOMY_REMINDERS
         )
 
-    def draw_cut_line(self) -> None:
-        mid = PAGE_H / 2
-        self.set_draw_color(120, 120, 120)
-        self.set_line_width(0.6)
-        x = MARGIN_X
-        dash, gap = 6, 4
-        while x < PAGE_W - MARGIN_X:
-            x2 = min(x + dash, PAGE_W - MARGIN_X)
-            self.line(x, mid, x2, mid)
-            x = x2 + gap
-        self.set_font(self.font_family, "", 7)
-        self.set_text_color(140, 140, 140)
-        self.set_xy(0, mid - 9)
-        self.cell(PAGE_W, 8, "[ cut here ]", align="C")
-
     def build(self) -> None:
         self.add_page()
         mid = PAGE_H / 2
         self.draw_actions_half(top=12, bottom=mid - HALF_GAP)
-        self.draw_cut_line()
         self.draw_bonus_reaction_half(top=mid + HALF_GAP + 4, bottom=PAGE_H - 12)
 
 
